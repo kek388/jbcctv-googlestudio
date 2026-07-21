@@ -22,11 +22,9 @@ import {
   Key,
   Network
 } from 'lucide-react';
-
 // Import local datasets & types
 import { SERVICES, TARGET_AUDIENCES, PROJECTS, SERVICE_AREAS, FAQS } from './data';
 import { Service, TargetAudience, ProjectItem } from './types.ts';
-
 // Import components
 import Navbar from './components/Navbar';
 import CCTVInteractiveSimulator from './components/CCTVInteractiveSimulator';
@@ -35,28 +33,33 @@ import WhatsAppButton from './components/WhatsAppButton';
 import Footer from './components/Footer';
 import ProjectPage, { DEFAULT_PROJECTS } from './components/ProjectPage';
 import { motion, AnimatePresence } from 'motion/react';
-
+// Local image imports (fixes broken paths after production build)
+import coverPhoto from './assets/images/cctv cove photo.png';
+import editedBannerDome from './assets/images/edited banner dome.png';
+import hikvisionHeroVivid from './assets/images/hikvision_hero_vivid_right_aligned_1780885455591.png';
+import hikvisionHeroVibrant from './assets/images/hikvision_hero_vibrant_bg_1780884949076.png';
+import coverInstallImg from './assets/images/clean_cctv_install_1780884272341.png';
+import installerVanImg from './assets/images/hikvision_installer_van_1784195511675.jpg';
 // Generated Premium Core Images from AI Studio
 const HERO_BANNER_IMAGES = [
   {
-    url: '/src/assets/images/cctv cove photo.png',
+    url: coverPhoto,
     alt: 'Professional CCTV Security Systems Cover Photo'
   },
   {
-    url: '/src/assets/images/edited banner dome.png',
+    url: editedBannerDome,
     alt: 'JB CCTV Security Camera Banner'
   },
   {
-    url: '/src/assets/images/hikvision_hero_vivid_right_aligned_1780885455591.png',
+    url: hikvisionHeroVivid,
     alt: 'Smart AI Security Camera Matrix'
   },
   {
-    url: '/src/assets/images/hikvision_hero_vibrant_bg_1780884949076.png',
+    url: hikvisionHeroVibrant,
     alt: 'Vibrant Corporate Security Solutions Johor Bahru'
   }
 ];
-const COVER_INSTALL_IMG = '/src/assets/images/clean_cctv_install_1780884272341.png';
-
+const COVER_INSTALL_IMG = coverInstallImg;
 const getServiceStyle = (id: string) => {
   switch (id) {
     case 'cctv':
@@ -111,7 +114,6 @@ const getServiceStyle = (id: string) => {
       };
   }
 };
-
 const getServiceIcon = (id: string) => {
   switch (id) {
     case 'cctv':
@@ -126,7 +128,6 @@ const getServiceIcon = (id: string) => {
       return <Shield className="w-7 h-7 text-amber-500 group-hover:text-amber-400 group-hover:scale-110 transition-all duration-300" />;
   }
 };
-
 function isProjectInJohorBahru(location: string): boolean {
   if (!location) return false;
   const loc = location.toLowerCase();
@@ -139,11 +140,9 @@ function isProjectInJohorBahru(location: string): boolean {
   ];
   return jbKeywords.some(keyword => loc.includes(keyword));
 }
-
 function getAreaFromLocation(location: string): string {
   if (!location) return '';
   const loc = location.toLowerCase();
-
   const areaMapping = [
     { keywords: ['horizon hills'], name: 'Horizon Hills' },
     { keywords: ['mount austin', 'austin heights'], name: 'Mount Austin' },
@@ -164,17 +163,14 @@ function getAreaFromLocation(location: string): string {
     { keywords: ['impian emas'], name: 'Impian Emas' },
     { keywords: ['plaza pelangi', 'jb town', 'johor bahru town'], name: 'Johor Bahru Town (JB Town)' },
   ];
-
   for (const mapping of areaMapping) {
     if (mapping.keywords.some(k => loc.includes(k))) {
       return mapping.name;
     }
   }
-
   const parts = location.split(',');
   return parts[0].trim();
 }
-
 function matchesArea(locationRaw: string, areaName: string): boolean {
   if (!locationRaw) return false;
   const loc = locationRaw.toLowerCase();
@@ -208,11 +204,9 @@ function matchesArea(locationRaw: string, areaName: string): boolean {
   }
   return false;
 }
-
 function getDynamicServicesForArea(areaName: string, projects: any[]): ('CCTV' | 'ALARM' | 'ACCESS CONTROL')[] {
   const matches = projects.filter(proj => matchesArea(proj.location, areaName));
   const matchedServices = new Set<'CCTV' | 'ALARM' | 'ACCESS CONTROL'>();
-
   matches.forEach(proj => {
     const fieldsToSearch = [
       (proj.title || ''),
@@ -220,11 +214,9 @@ function getDynamicServicesForArea(areaName: string, projects: any[]): ('CCTV' |
       (proj.productType || ''),
       (proj.projectType || '')
     ].map(f => f.toLowerCase());
-
     const checkMatch = (keywordsList: string[]) => {
       return fieldsToSearch.some(f => keywordsList.some(k => f.includes(k)));
     };
-
     // CCTV match check
     if (checkMatch(['cctv', 'camera', 'surveillance', 'ip', 'dome', 'bullet'])) {
       matchedServices.add('CCTV');
@@ -238,12 +230,9 @@ function getDynamicServicesForArea(areaName: string, projects: any[]): ('CCTV' |
       matchedServices.add('ACCESS CONTROL');
     }
   });
-
   return Array.from(matchedServices);
 }
-
 // DEFAULT_PROJECTS is imported directly from ProjectPage component to prevent duplication.
-
 export default function App() {
   const [currentPage, setCurrentPage] = useState<'home' | 'projects'>('home');
   const [activeAudienceId, setActiveAudienceId] = useState('homeowners');
@@ -259,7 +248,6 @@ export default function App() {
   const [projectProductTypeFilter, setProjectProductTypeFilter] = useState<'All' | 'CCTV' | 'ALARM' | 'DOOR ACCESS'>('All');
   const [projectsList, setProjectsList] = useState<any[]>([]);
   const [currentBannerIndex, setCurrentBannerIndex] = useState(0);
-
   // Auto-scroll banner interval
   useEffect(() => {
     const timer = setInterval(() => {
@@ -267,7 +255,6 @@ export default function App() {
     }, 5000); // changes every 5 seconds
     return () => clearInterval(timer);
   }, []);
-
   // Load dynamically updated projects from localStorage
   useEffect(() => {
     const updateProjectsList = () => {
@@ -285,7 +272,6 @@ export default function App() {
         setProjectsList(DEFAULT_PROJECTS);
       }
     };
-
     updateProjectsList();
     
     // Listen to changes (e.g., when adding/deleting on projects sub-page)
@@ -294,7 +280,6 @@ export default function App() {
       window.removeEventListener('storage', updateProjectsList);
     };
   }, [currentPage]);
-
   // Scroll function mapping
   const navigateToSection = (id: string) => {
     if (id === 'projects') {
@@ -308,7 +293,6 @@ export default function App() {
       // Delay slightly to let the home component render and register IDs
       // If switching from projects, wait longer for the exit transition (300ms) to complete
       const delay = isSwitchingPage ? 350 : 50;
-
       setTimeout(() => {
         const el = document.getElementById(id);
         if (el) {
@@ -317,7 +301,6 @@ export default function App() {
           const elementRect = el.getBoundingClientRect().top;
           const elementPosition = elementRect - bodyRect;
           const offsetPosition = elementPosition - offset;
-
           window.scrollTo({
             top: offsetPosition,
             behavior: 'smooth'
@@ -328,12 +311,10 @@ export default function App() {
       }, delay);
     }
   };
-
   const handleServiceAreaClick = (areaName: string, serviceName: 'CCTV' | 'ALARM' | 'ACCESS CONTROL') => {
     // Extract main area name (e.g. "Skudai" or "Bukit Indah")
     const mainArea = areaName.split('/')[0].trim();
     setProjectSearchQuery(mainArea);
-
     if (serviceName === 'CCTV') {
       setProjectProductTypeFilter('CCTV');
     } else if (serviceName === 'ALARM') {
@@ -341,22 +322,18 @@ export default function App() {
     } else if (serviceName === 'ACCESS CONTROL') {
       setProjectProductTypeFilter('DOOR ACCESS');
     }
-
     setCurrentPage('projects');
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
-
   const handleAreaOnlyClick = (areaName: string) => {
     setProjectSearchQuery(areaName);
     setProjectProductTypeFilter('All');
     setCurrentPage('projects');
     window.scrollTo({ top: 0, behavior: 'auto' });
   };
-
   // Dynamic service areas based on projects in Johor Bahru
   const dynamicServiceAreas = useMemo(() => {
     const areaMap = new Map<string, { name: string; productTypes: Set<string> }>();
-
     projectsList.forEach((proj) => {
       const loc = proj.location || '';
       if (loc.trim() !== '') {
@@ -389,7 +366,6 @@ export default function App() {
         }
       }
     });
-
     // Convert map to sorted array of service areas
     return Array.from(areaMap.values()).map(entry => ({
       name: entry.name,
@@ -397,19 +373,15 @@ export default function App() {
       systems: Array.from(entry.productTypes) as ('CCTV' | 'ALARM' | 'DOOR ACCESS')[]
     })).sort((a, b) => a.name.localeCompare(b.name));
   }, [projectsList]);
-
   const selectedAudience = TARGET_AUDIENCES.find((a) => a.id === activeAudienceId) || TARGET_AUDIENCES[0];
-
   // Filter gallery items
   const filteredProjects = activeGalleryFilter === 'All'
     ? PROJECTS
     : PROJECTS.filter((p) => p.category === activeGalleryFilter);
-
   // Quick form WhatsApp forwarder
   const handleQuickSubmit = (e: FormEvent) => {
     e.preventDefault();
     if (!quickContactAddress) return;
-
     const encodedMessage = encodeURIComponent(
       `Hello JB CCTV Security! I submitted an inspection request form on your website:
 👤 NAME: ${quickContactName || 'Customer'}
@@ -435,13 +407,11 @@ export default function App() {
     }
     setIsFormSubmitted(true);
   };
-
   return (
     <div className="bg-neutral-950 text-neutral-100 font-sans min-h-screen relative overflow-x-hidden selection:bg-amber-400 selection:text-black">
       
       {/* Structural Headers */}
       <Navbar onNavigate={navigateToSection} />
-
       <AnimatePresence mode="wait">
         {currentPage === 'home' ? (
           <motion.div
@@ -477,7 +447,6 @@ export default function App() {
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/20 to-transparent z-20 hidden landscape:block lg:block" />
           <div className="absolute inset-0 bg-gradient-to-r from-neutral-950 via-neutral-950/40 via-transparent to-transparent z-20 hidden landscape:block lg:block" />
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_right,rgba(245,158,11,0.15)_0%,transparent_75%)] pointer-events-none z-20 hidden landscape:block lg:block" />
-
           {/* Elegant active indicators overlay */}
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 landscape:left-8 landscape:-translate-x-0 lg:left-8 lg:-translate-x-0 flex items-center gap-2 z-30 bg-black/45 backdrop-blur-sm px-3.5 py-1.5 rounded-full border border-neutral-800/50">
             {HERO_BANNER_IMAGES.map((_, i) => (
@@ -495,11 +464,9 @@ export default function App() {
             ))}
           </div>
         </div>
-
         {/* Small Ambient Glow Effects */}
         <div className="absolute top-1/4 left-1/4 w-72 h-72 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-10 right-10 w-96 h-96 bg-orange-600/10 rounded-full blur-3xl pointer-events-none" />
-
         <div className="relative z-10 w-full px-4 sm:px-6 lg:px-12 xl:px-16 2xl:px-24 pt-12 pb-20 landscape:pt-24 landscape:pb-24 lg:pt-36 lg:pb-28 xl:pt-44 xl:pb-36 text-left">
           <div className="max-w-2xl lg:max-w-4xl xl:max-w-5xl 2xl:max-w-6xl space-y-8 lg:space-y-10">
             
@@ -511,7 +478,6 @@ export default function App() {
                 <Sparkles className="w-3.5 h-3.5 lg:w-4 lg:h-4 xl:w-4.5 xl:h-4.5" />
                 No.1 Professional CCTV Integrated Studio in Johor Bahru
               </div>
-
               {/* Bold Title */}
               <h1 className="font-display font-black text-4xl sm:text-5xl lg:text-6.5xl xl:text-7.5xl 2xl:text-8.5xl tracking-tight leading-none text-white lg:leading-[1.05]">
                 Security, <br className="hidden sm:inline" />
@@ -519,12 +485,10 @@ export default function App() {
                   Feel it with us.
                 </span>
               </h1>
-
               {/* Business Slogan Explanation */}
               <p className="text-base sm:text-lg lg:text-xl xl:text-2xl 2xl:text-3xl text-neutral-300 max-w-2xl lg:max-w-3xl xl:max-w-4xl leading-relaxed font-light">
                 Protect your family and business with elite AI-powered surveillance. Get real-time tracking, active triggers, and instant mobile alerts today.
               </p>
-
               {/* Unique Selling Bullets */}
               <div className="flex flex-col gap-3 lg:gap-4 pt-2 text-left">
                 <div className="inline-flex items-center gap-2.5 lg:gap-3.5 bg-neutral-900/40 px-4 py-2.5 lg:px-6 lg:py-3.5 border border-neutral-800/40 rounded-xl lg:rounded-2xl backdrop-blur-sm w-fit">
@@ -536,7 +500,6 @@ export default function App() {
                   <span className="text-xs sm:text-sm lg:text-base xl:text-lg 2xl:text-xl font-semibold text-neutral-200">Serviced Johor Bahru Area</span>
                 </div>
               </div>
-
               {/* Primary Call-to-Actions */}
               <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 lg:gap-6 pt-4 lg:pt-6">
                 <button
@@ -553,7 +516,6 @@ export default function App() {
                   <span>Try Interactive Simulator</span>
                 </button>
               </div>
-
               {/* Trusted Industry Logos Badge Row */}
               <div className="pt-8 lg:pt-14 xl:pt-20 space-y-2 lg:space-y-4">
                 <span className="text-[10px] sm:text-xs lg:text-sm xl:text-base uppercase font-extrabold text-amber-500 tracking-wider block">
@@ -563,13 +525,10 @@ export default function App() {
                   NO1 WORLD WIDE SECURITY SOLUTION PROVIDER
                 </span>
               </div>
-
             </div>
-
           </div>
         </div>
       </section>
-
       {/* 6. PROJECT PORTFOLIO TEASER */}
       <section id="projects" className="py-20 lg:py-24 bg-neutral-950 relative border-t border-neutral-900">
         <div className="absolute top-1/4 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -586,7 +545,6 @@ export default function App() {
               We deploy custom-engineered safety layers tailored for specialized environments here in Johor Bahru. Explore real client blueprints on our interactive project page.
             </p>
           </div>
-
           {/* Premium cards mapping real dynamic projects from our live database */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5 max-w-6xl mx-auto pt-4">
             {projectsList.slice(0, 4).map((item) => {
@@ -614,7 +572,6 @@ export default function App() {
                         <span>{area || 'Johor Bahru'}</span>
                       </div>
                     </div>
-
                     <div className="p-4 space-y-2">
                       <h4 className="font-display font-bold text-sm text-white group-hover:text-amber-400 transition-colors line-clamp-2 leading-snug">
                         {item.title}
@@ -624,7 +581,6 @@ export default function App() {
                       </p>
                     </div>
                   </div>
-
                   <div className="px-4 py-2.5 border-t border-neutral-850/60 bg-neutral-950/40 flex items-center justify-between text-[10px] font-mono font-bold tracking-wider uppercase text-amber-500 group-hover:text-amber-300">
                     <span className="truncate max-w-[150px]">Area: {area || 'JB Town'}</span>
                     <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
@@ -633,7 +589,6 @@ export default function App() {
               );
             })}
           </div>
-
           <div className="pt-6">
             <button
               onClick={() => {
@@ -648,7 +603,6 @@ export default function App() {
           
         </div>
       </section>
-
       {/* 2. SERVICES SECTION */}
       <section id="services" className="py-20 landscape:py-[clamp(3rem,8vh,8rem)] lg:py-24 bg-neutral-950 border-t border-neutral-900 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -664,7 +618,6 @@ export default function App() {
               We install reliable tech stacks. Every product is backed by direct local warranties, neat insulated wiring layouts, and mobile integration.
             </p>
           </div>
-
           {/* Grid of Services */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 landscape:gap-[clamp(1rem,2vw,1.5rem)]">
             {SERVICES.map((serv) => {
@@ -681,17 +634,14 @@ export default function App() {
                   />
                   {/* Visual overlay gradient for perfect text legibility when hovered with higher opacity background image */}
                   <div className="absolute inset-0 bg-gradient-to-t from-neutral-950 via-neutral-950/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0" />
-
                   {/* Left edge neon gradient strip */}
                   <div className={`absolute top-0 left-0 w-2 h-0 group-hover:h-full ${style.neonStrip} transition-all duration-300 z-10`} />
-
                   <div className="relative z-10">
                     <div className="mb-6 flex items-center justify-between">
                       <div className={`p-3 rounded-xl border ${style.iconBg} transition-all duration-300`}>
                         {getServiceIcon(serv.id)}
                       </div>
                     </div>
-
                     <h3 className={`font-display font-bold text-xl landscape:text-[clamp(1.1rem,2vw,1.5rem)] text-neutral-100 ${style.textColor} transition-colors`}>
                       {serv.title}
                     </h3>
@@ -699,9 +649,7 @@ export default function App() {
                     <p className="text-xs landscape:text-[clamp(11px,1.2vw,13px)] text-neutral-400 leading-normal mt-2">
                       {serv.description}
                     </p>
-
                     <hr className="border-neutral-800 my-4 landscape:my-[clamp(0.5rem,1.5vh,1rem)]" />
-
                     {/* Bullet Spec Checklist */}
                     <ul className="space-y-2 landscape:space-y-[clamp(0.25rem,1vh,0.5rem)]">
                       {serv.features.map((feat, idx) => (
@@ -712,9 +660,8 @@ export default function App() {
                       ))}
                     </ul>
                   </div>
-
                   <div className="pt-6 landscape:pt-[clamp(0.75rem,2vh,1.5rem)] relative z-10">
-                    <a
+                    
                       href={`https://wa.me/601133901688?text=${encodeURIComponent(
                         `Hello! I want a custom quote for ${serv.title} installation at my property in Johor Bahru.`
                       )}`}
@@ -730,10 +677,8 @@ export default function App() {
               );
             })}
           </div>
-
         </div>
       </section>
-
       {/* 5. INSTANT ESTIMATE BUNDLE CALCULATOR */}
       <section id="calculator" className="py-20 lg:py-24 bg-neutral-950 relative border-t border-neutral-900">
         <div className="absolute top-1/4 right-0 w-80 h-80 bg-amber-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -750,11 +695,9 @@ export default function App() {
               Customize cameras, switches, and lock options according to your premises sizes. Click apply to directly schedule a dispatch technician survey of your site.
             </p>
           </div>
-
           <QuoteCalculator />
         </div>
       </section>
-
       {/* 4. CCTV PLAYGROUND INTERACTIVE SIMULATOR */}
       <section id="simulator" className="py-20 lg:py-24 bg-neutral-950 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -769,12 +712,10 @@ export default function App() {
               Select channels, test digital zooms, check infrared matrix night-vision overrides, or hear the virtual 110dB active deterrence perimeter warning siren.
             </p>
           </div>
-
           {/* CCTVSimulator Embed */}
           <CCTVInteractiveSimulator />
         </div>
       </section>
-
       {/* 8. DETAILED SERVICE AREAS (LOCAL SEO EXPANDER) */}
       <section id="service-areas" className="py-20 lg:py-24 bg-neutral-950 relative">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -790,7 +731,6 @@ export default function App() {
               We cover these areas in Johor Bahru and provide a premium, free on-site survey & safety inspection, but do not promise immediate response or on-site arrival within the same day.
             </p>
           </div>
-
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {dynamicServiceAreas.map((area) => {
               return (
@@ -809,7 +749,6 @@ export default function App() {
                         {area.coverage}
                       </span>
                     </div>
-
                     {area.systems && area.systems.length > 0 ? (
                       <>
                         <span className="text-[10px] font-bold text-neutral-500 uppercase tracking-widest block mb-2 px-1 font-mono">
@@ -839,7 +778,6 @@ export default function App() {
                       </div>
                     )}
                   </div>
-
                   <div className="mt-4 pt-4 border-t border-neutral-800/50 flex items-center justify-between text-[11px] font-mono text-neutral-500 group-hover:text-amber-400/80 transition-colors">
                     <span>View project footprints</span>
                     <ArrowRight className="w-3.5 h-3.5 transform group-hover:translate-x-1 transition-transform" />
@@ -848,7 +786,6 @@ export default function App() {
               );
             })}
           </div>
-
           {/* Quick service footer block */}
           <div className="mt-12 bg-gradient-to-br from-neutral-950 to-neutral-900 border border-amber-500/10 px-6 py-6 rounded-2xl flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="text-center md:text-left space-y-1 max-w-xl">
@@ -856,10 +793,10 @@ export default function App() {
                 Outside Johor Bahru region?
               </h4>
               <p className="text-xs text-neutral-400 leading-normal">
-                Don’t worry! We periodically undertake corporate factory installations and multi-branch surveillance deployments across Kulai, Pontian, Batu Pahat, and Singapore with scheduled logistical support.
+                Don't worry! We periodically undertake corporate factory installations and multi-branch surveillance deployments across Kulai, Pontian, Batu Pahat, and Singapore with scheduled logistical support.
               </p>
             </div>
-            <a
+            
               href="https://wa.me/601133901688?text=Hello%20JB%20CCTV%20Security!%20I%20live%20outside%20of%20Johor%20Bahru%20town%2520and%2520want%2520to%2520see%2520if%2520you%2520cover%2520my%2520area."
               target="_blank"
               rel="noopener noreferrer"
@@ -868,10 +805,8 @@ export default function App() {
               Enquire Regional Support
             </a>
           </div>
-
         </div>
       </section>
-
       {/* 3. TARGET AUDIENCES SECTOR HUB (WHY US) */}
       <section id="why-us" className="py-20 lg:py-24 bg-neutral-950 relative border-t border-neutral-900">
         <div className="absolute top-10 right-1/3 w-80 h-80 bg-orange-500/5 rounded-full blur-3xl pointer-events-none" />
@@ -891,9 +826,8 @@ export default function App() {
               <p className="text-sm text-neutral-400 leading-relaxed font-light">
                 We believe security systems are only as good as their installation. With over 1000 successfully completed residential, commercial, and industrial sites across Johor Bahru, we set the benchmark for pristine conduit routing, zero-exposed cables, and rugged lightning protection.
               </p>
-
               <div className="pt-2">
-                <a
+                
                   href="https://web.facebook.com/malaysiacctvs"
                   target="_blank"
                   rel="noopener noreferrer"
@@ -903,11 +837,10 @@ export default function App() {
                   <span>View Our Facebook Portfolio</span>
                 </a>
               </div>
-
               {/* Technical installation image card with info frame */}
               <div className="relative rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl bg-neutral-950">
                 <img
-                  src="/src/assets/images/hikvision_installer_van_1784195511675.jpg"
+                  src={installerVanImg}
                   alt="JB CCTV & HIKVISION Gold Dealer Partner Installation Site"
                   referrerPolicy="no-referrer"
                   className="w-full object-cover aspect-[16/9]"
@@ -919,7 +852,6 @@ export default function App() {
                   </div>
                 </div>
               </div>
-
               {/* Trust counters */}
               <div className="grid grid-cols-3 gap-4 text-center py-4 bg-neutral-900 border border-neutral-850 rounded-xl">
                 <div>
@@ -936,7 +868,6 @@ export default function App() {
                 </div>
               </div>
             </div>
-
             {/* Target Audience Tabs Segment Selector (C-7) */}
             <div className="lg:col-span-7 space-y-6 bg-neutral-900 p-6 sm:p-8 rounded-2xl border border-neutral-800/85">
               
@@ -946,11 +877,9 @@ export default function App() {
                   Target Sector Solutions
                 </span>
               </div>
-
               <h4 className="font-display font-bold text-2xl text-white pb-3 border-b border-neutral-800">
                 Specifically Configured for your Premises
               </h4>
-
               {/* Selector Tabs buttons */}
               <div className="flex flex-wrap gap-2.5">
                 {TARGET_AUDIENCES.map((audience) => (
@@ -967,7 +896,6 @@ export default function App() {
                   </button>
                 ))}
               </div>
-
               {/* Selected Audience Output Box */}
               <div className="space-y-4 pt-3 bg-neutral-950/80 p-5 rounded-xl border border-neutral-850/60 animate-fade-in">
                 <div>
@@ -978,7 +906,6 @@ export default function App() {
                     {selectedAudience.headline}
                   </h4>
                 </div>
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
                   <div className="space-y-2">
                     <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider block">
@@ -993,7 +920,6 @@ export default function App() {
                       ))}
                     </ul>
                   </div>
-
                   <div className="space-y-2">
                     <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider block">
                       Our Engineered Workaround
@@ -1008,7 +934,6 @@ export default function App() {
                     </ul>
                   </div>
                 </div>
-
                 <div className="border-t border-neutral-800/80 pt-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div>
                     <span className="text-[9px] uppercase font-bold text-neutral-500 block">
@@ -1027,13 +952,10 @@ export default function App() {
                   </button>
                 </div>
               </div>
-
             </div>
-
           </div>
         </div>
       </section>
-
       {/* 1.5 RAPID ON-SITE SURVEY BOOKING SECTION (PHONE NUMBER) */}
       <section id="on-site-booking" className="py-16 bg-neutral-950 border-t border-neutral-900 relative">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -1059,7 +981,6 @@ export default function App() {
                   <span>On-call dispatch active. Responding in Johor 9 AM - 7 PM today.</span>
                 </div>
               </div>
-
               <div className="md:col-span-7">
                 {isFormSubmitted ? (
                   <div className="bg-emerald-950/40 border border-emerald-500/30 p-6 rounded-2xl text-center space-y-3">
@@ -1131,7 +1052,6 @@ export default function App() {
                         className="w-full bg-neutral-950 border border-neutral-800 text-neutral-100 rounded-lg p-2.5 text-xs focus:border-amber-500 outline-none transition-colors resize-none"
                       />
                     </div>
-
                     <button
                       type="submit"
                       className="w-full py-3.5 rounded-lg bg-gradient-to-r from-amber-400 to-orange-500 hover:from-amber-500 hover:to-orange-600 text-neutral-900 font-bold text-xs tracking-wider uppercase transition-all shadow-md shadow-amber-500/10 cursor-pointer text-center"
@@ -1145,7 +1065,6 @@ export default function App() {
           </div>
         </div>
       </section>
-
       {/* 9. ACCORDION FAQS */}
       <section id="faq" className="py-20 lg:py-24 bg-neutral-950 relative border-t border-neutral-900">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
@@ -1161,7 +1080,6 @@ export default function App() {
               Be a smart buyer. We break down the technical concerns regarding night-vision streams, cloud security backups, and server configurations below.
             </p>
           </div>
-
           {/* Accordion List */}
           <div className="space-y-3">
             {FAQS.map((faq, idx) => (
@@ -1181,7 +1099,6 @@ export default function App() {
                     }`}
                   />
                 </button>
-
                 {expandedFaqIndex === idx && (
                   <div className="px-5 pb-5 pt-1 text-xs text-neutral-400 leading-relaxed border-t border-neutral-850/60 animate-fade-in font-light">
                     <p>{faq.a}</p>
@@ -1190,7 +1107,6 @@ export default function App() {
               </div>
             ))}
           </div>
-
         </div>
       </section>
           </motion.div>
@@ -1225,11 +1141,9 @@ export default function App() {
           </motion.div>
         )}
       </AnimatePresence>
-
       {/* FOOTER & OVERLAY HOOKS */}
       <Footer onNavigate={navigateToSection} serviceAreas={dynamicServiceAreas} />
       <WhatsAppButton />
-
     </div>
   );
 }
