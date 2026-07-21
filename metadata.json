@@ -1,0 +1,6 @@
+{
+  "name": "JB CCTV Security",
+  "description": "Premium, modern security and CCTV solutions in Johor Bahru. Security, Feel it with us by JB CCTV Security.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
