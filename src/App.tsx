@@ -36,26 +36,33 @@ import Footer from './components/Footer';
 import ProjectPage, { DEFAULT_PROJECTS } from './components/ProjectPage';
 import { motion, AnimatePresence } from 'motion/react';
 
+import coverPhoto from './assets/images/cctv cove photo.png';
+import editedBannerDome from './assets/images/edited banner dome.png';
+import hikvisionHeroVivid from './assets/images/hikvision_hero_vivid_right_aligned_1780885455591.png';
+import hikvisionHeroVibrant from './assets/images/hikvision_hero_vibrant_bg_1780884949076.png';
+import coverInstallImg from './assets/images/clean_cctv_install_1780884272341.png';
+import installerVanImg from './assets/images/hikvision_installer_van_1784195511675.jpg';
+
 // Generated Premium Core Images from AI Studio
 const HERO_BANNER_IMAGES = [
   {
-    url: '/src/assets/images/cctv cove photo.png',
+    url: coverPhoto,
     alt: 'Professional CCTV Security Systems Cover Photo'
   },
   {
-    url: '/src/assets/images/edited banner dome.png',
+    url: editedBannerDome,
     alt: 'JB CCTV Security Camera Banner'
   },
   {
-    url: '/src/assets/images/hikvision_hero_vivid_right_aligned_1780885455591.png',
+    url: hikvisionHeroVivid,
     alt: 'Smart AI Security Camera Matrix'
   },
   {
-    url: '/src/assets/images/hikvision_hero_vibrant_bg_1780884949076.png',
+    url: hikvisionHeroVibrant,
     alt: 'Vibrant Corporate Security Solutions Johor Bahru'
   }
 ];
-const COVER_INSTALL_IMG = '/src/assets/images/clean_cctv_install_1780884272341.png';
+const COVER_INSTALL_IMG = coverInstallImg;
 
 const getServiceStyle = (id: string) => {
   switch (id) {
@@ -907,7 +914,7 @@ export default function App() {
               {/* Technical installation image card with info frame */}
               <div className="relative rounded-2xl overflow-hidden border border-neutral-800 shadow-2xl bg-neutral-950">
                 <img
-                  src="/src/assets/images/hikvision_installer_van_1784195511675.jpg"
+                  src={installerVanImg}
                   alt="JB CCTV & HIKVISION Gold Dealer Partner Installation Site"
                   referrerPolicy="no-referrer"
                   className="w-full object-cover aspect-[16/9]"
