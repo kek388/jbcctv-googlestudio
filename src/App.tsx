@@ -471,7 +471,7 @@ export default function App() {
               src={img.url}
               alt={img.alt}
               referrerPolicy="no-referrer"
-              className={`absolute inset-0 w-full h-full object-contain object-center lg:object-right scale-100 select-none transition-opacity duration-1000 ${
+              className={`absolute inset-0 w-full h-full object-cover object-center lg:object-right scale-100 select-none transition-opacity duration-1000 ${
                 i === currentBannerIndex ? 'opacity-95 lg:opacity-100 z-10' : 'opacity-0 z-0'
               }`}
             />
