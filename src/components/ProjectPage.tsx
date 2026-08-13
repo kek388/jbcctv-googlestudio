@@ -126,13 +126,6 @@ interface ProjectPageProps {
   onUpdateProjects?: (updated: EnhancedProject[]) => void;
 }
 
-async function computeSHA256(message: string): Promise<string> {
-  const msgBuffer = new TextEncoder().encode(message);
-  const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-  const hashArray = Array.from(new Uint8Array(hashBuffer));
-  return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
 interface ProjectImageScrollerProps {
   image: string;
   images?: string[];
@@ -245,6 +238,25 @@ export default function ProjectPage({
   const [authPassword, setAuthPassword] = useState('');
   const [deleteAuthPassword, setDeleteAuthPassword] = useState('');
   const [deleteAuthError, setDeleteAuthError] = useState('');
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+
+  useEffect(() => {
+    fetch('/api/admin/session', { credentials: 'same-origin' })
+      .then((response) => response.ok ? response.json() : { authenticated: false })
+      .then((data) => setIsAdminAuthenticated(Boolean(data.authenticated)))
+      .catch(() => setIsAdminAuthenticated(false));
+  }, []);
+
+  const authorizeAdmin = async (password: string) => {
+    if (isAdminAuthenticated) return true;
+    const response = await fetch('/api/admin/session', {
+      method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password })
+    });
+    if (!response.ok) return false;
+    setIsAdminAuthenticated(true);
+    return true;
+  };
 
   // Initialize and load from local storage (if uncontrolled)
   useEffect(() => {
@@ -411,12 +423,11 @@ export default function ProjectPage({
       setValidationError('Please specify a brief project summary description.');
       return;
     }
-    if (!authPassword) {
+    if (!isAdminAuthenticated && !authPassword) {
       setValidationError('Please enter the administrator authorization password.');
       return;
     }
-    const hashed = await computeSHA256(authPassword);
-    if (hashed !== '14bb9b6b2f2587c22d9181b40eaddc8be70bffcee55a0ad61459237f3af8978e') {
+    if (!(await authorizeAdmin(authPassword))) {
       setValidationError('Incorrect administrator authorization password.');
       return;
     }
@@ -466,12 +477,11 @@ export default function ProjectPage({
 
   const confirmDeleteProject = async () => {
     if (deleteTargetId) {
-      if (!deleteAuthPassword) {
+      if (!isAdminAuthenticated && !deleteAuthPassword) {
         setDeleteAuthError('Please enter the administrator authorization password.');
         return;
       }
-      const hashed = await computeSHA256(deleteAuthPassword);
-      if (hashed !== '14bb9b6b2f2587c22d9181b40eaddc8be70bffcee55a0ad61459237f3af8978e') {
+      if (!(await authorizeAdmin(deleteAuthPassword))) {
         setDeleteAuthError('Incorrect administrator authorization password.');
         return;
       }
@@ -1103,7 +1113,7 @@ export default function ProjectPage({
                 </div>
 
                 {/* Secure Auth Password Gate */}
-                <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 space-y-2">
+                {!isAdminAuthenticated ? <div className="bg-amber-500/5 border border-amber-500/10 rounded-2xl p-4 space-y-2">
                   <label className="text-[10px] uppercase font-extrabold text-amber-500 block">
                     Administrator Security Authorization
                   </label>
@@ -1118,7 +1128,7 @@ export default function ProjectPage({
                   <p className="text-[9px] text-neutral-500 leading-normal">
                     Authorized administration password is required to secure project listings from unauthorized changes.
                   </p>
-                </div>
+                </div> : <div className="bg-emerald-500/5 border border-emerald-500/15 rounded-2xl p-4 text-[11px] font-bold text-emerald-400">Administrator authorized on this device for 30 days.</div>}
 
                 {/* Actions buttons */}
                 <div className="pt-4 border-t border-neutral-800/60 flex items-center justify-end gap-3">
@@ -1180,7 +1190,7 @@ export default function ProjectPage({
               </p>
 
               {/* Secure Admin Authorization Gate */}
-              <div className="mb-4 space-y-1.5">
+              {!isAdminAuthenticated ? <div className="mb-4 space-y-1.5">
                 <label className="text-[10px] uppercase font-extrabold text-amber-500 block">
                   Admin Authorization Password
                 </label>
@@ -1200,7 +1210,7 @@ export default function ProjectPage({
                     {deleteAuthError}
                   </p>
                 )}
-              </div>
+              </div> : <div className="mb-4 rounded-xl border border-emerald-500/15 bg-emerald-500/5 p-3 text-xs font-bold text-emerald-400">Administrator session verified.</div>}
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-neutral-800/60">
                 <button
