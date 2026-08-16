@@ -275,32 +275,15 @@ export default function App() {
     return () => clearInterval(timer);
   }, []);
 
-  // Load dynamically updated projects from localStorage
+  // Load the shared project portfolio from the server so every device sees the same data.
   useEffect(() => {
-    const updateProjectsList = () => {
-      try {
-        const saved = typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('jb_cctv_saved_projects') : null;
-        if (saved) {
-          setProjectsList(JSON.parse(saved));
-        } else {
-          setProjectsList(DEFAULT_PROJECTS);
-          if (typeof window !== 'undefined' && window.localStorage) {
-            window.localStorage.setItem('jb_cctv_saved_projects', JSON.stringify(DEFAULT_PROJECTS));
-          }
-        }
-      } catch (e) {
-        setProjectsList(DEFAULT_PROJECTS);
-      }
-    };
-
-    updateProjectsList();
-    
-    // Listen to changes (e.g., when adding/deleting on projects sub-page)
-    window.addEventListener('storage', updateProjectsList);
-    return () => {
-      window.removeEventListener('storage', updateProjectsList);
-    };
-  }, [currentPage]);
+    let active = true;
+    fetch('/api/projects')
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error('Project API unavailable')))
+      .then((projects) => { if (active) setProjectsList(Array.isArray(projects) ? projects : DEFAULT_PROJECTS); })
+      .catch(() => { if (active) setProjectsList(DEFAULT_PROJECTS); });
+    return () => { active = false; };
+  }, []);
 
   // Scroll function mapping
   const navigateToSection = (id: string) => {
@@ -1218,16 +1201,7 @@ export default function App() {
                 setProjectProductTypeFilter('All');
               }}
               projects={projectsList}
-              onUpdateProjects={(updated) => {
-                setProjectsList(updated);
-                try {
-                  if (typeof window !== 'undefined' && window.localStorage) {
-                    window.localStorage.setItem('jb_cctv_saved_projects', JSON.stringify(updated));
-                  }
-                } catch (e) {
-                  console.error("Local storage error:", e);
-                }
-              }}
+              onUpdateProjects={setProjectsList}
             />
           </motion.div>
         )}
