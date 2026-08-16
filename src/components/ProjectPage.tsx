@@ -258,40 +258,17 @@ export default function ProjectPage({
     return true;
   };
 
-  // Initialize and load from local storage (if uncontrolled)
+  // Load from the shared server API when this component is used standalone.
   useEffect(() => {
     if (isControlled) return;
-    try {
-      const saved = typeof window !== 'undefined' && window.localStorage ? window.localStorage.getItem('jb_cctv_saved_projects') : null;
-      if (saved) {
-        try {
-          setLocalProjects(JSON.parse(saved));
-        } catch (e) {
-          setLocalProjects(DEFAULT_PROJECTS);
-        }
-      } else {
-        setLocalProjects(DEFAULT_PROJECTS);
-        if (typeof window !== 'undefined' && window.localStorage) {
-          window.localStorage.setItem('jb_cctv_saved_projects', JSON.stringify(DEFAULT_PROJECTS));
-        }
-      }
-    } catch (e) {
-      setLocalProjects(DEFAULT_PROJECTS);
-    }
+    fetch('/api/projects')
+      .then((response) => response.ok ? response.json() : Promise.reject(new Error('Project API unavailable')))
+      .then((items) => setLocalProjects(Array.isArray(items) ? items : DEFAULT_PROJECTS))
+      .catch(() => setLocalProjects(DEFAULT_PROJECTS));
   }, [isControlled]);
 
-  // Sync to local storage
-  const syncToLocalStorage = (newProjects: EnhancedProject[]) => {
+  const syncProjectsState = (newProjects: EnhancedProject[]) => {
     setProjectsState(newProjects);
-    try {
-      if (typeof window !== 'undefined' && window.localStorage) {
-        window.localStorage.setItem('jb_cctv_saved_projects', JSON.stringify(newProjects));
-        // Dispatch standard storage event to trigger parent updates in real-time
-        window.dispatchEvent(new Event('storage'));
-      }
-    } catch (e) {
-      console.error("Local storage sync error:", e);
-    }
   };
 
   // Compress and resize images to prevent local storage quota exceeded errors
@@ -437,8 +414,7 @@ export default function ProjectPage({
     const finalImage = finalImages[0];
     const finalProductType = selectedHardwares.join(', ');
 
-    const newProjItem: EnhancedProject = {
-      id: 'proj-' + Date.now(),
+    const projectPayload = {
       title: newTitle,
       category: newCategory,
       projectType: newProjectType,
@@ -449,8 +425,19 @@ export default function ProjectPage({
       description: newDescription
     };
 
-    const updated = [newProjItem, ...projects];
-    syncToLocalStorage(updated);
+    const saveResponse = await fetch('/api/projects', {
+      method: 'POST',
+      credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(projectPayload)
+    });
+    if (!saveResponse.ok) {
+      const error = await saveResponse.json().catch(() => ({}));
+      setValidationError(error.error || 'Unable to save this project to the shared website.');
+      return;
+    }
+    const savedProject: EnhancedProject = await saveResponse.json();
+    syncProjectsState([savedProject, ...projects]);
 
     // Reset Form
     setNewTitle('');
@@ -485,8 +472,16 @@ export default function ProjectPage({
         setDeleteAuthError('Incorrect administrator authorization password.');
         return;
       }
+      const response = await fetch(`/api/projects/${encodeURIComponent(deleteTargetId)}`, {
+        method: 'DELETE', credentials: 'same-origin'
+      });
+      if (!response.ok) {
+        const error = await response.json().catch(() => ({}));
+        setDeleteAuthError(error.error || 'Unable to delete this project from the shared website.');
+        return;
+      }
       const filtered = projects.filter(p => p.id !== deleteTargetId);
-      syncToLocalStorage(filtered);
+      syncProjectsState(filtered);
       setDeleteTargetId(null);
       setDeleteAuthPassword('');
       setDeleteAuthError('');
@@ -1186,7 +1181,7 @@ export default function ProjectPage({
                 </div>
               </div>
               <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed mb-4">
-                Are you sure you want to remove this completed project footprint from your galleries? It will be cleared from your local storage profile.
+                Are you sure you want to remove this completed project footprint from the public website gallery?
               </p>
 
               {/* Secure Admin Authorization Gate */}
