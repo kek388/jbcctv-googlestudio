@@ -14,6 +14,10 @@ const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '14bb9b6b2f2587c2
 const SESSION_SECRET = process.env.SESSION_SECRET;
 const DATA_DIR = path.join(__dirname, 'data');
 const PROJECTS_FILE = path.join(DATA_DIR, 'projects.json');
+const PROJECTS_SEED_FILES = [
+  path.join(__dirname, 'dist', 'projects.json'),
+  path.join(__dirname, 'public', 'projects.json')
+];
 const UPLOADS_DIR = path.join(__dirname, 'public', 'uploads', 'projects');
 
 app.use(express.json({ limit: '20mb' }));
@@ -23,7 +27,18 @@ const readProjects = async () => {
   try {
     return JSON.parse(await fs.readFile(PROJECTS_FILE, 'utf8'));
   } catch (error) {
-    if (error?.code === 'ENOENT') return [];
+    if (error?.code === 'ENOENT') {
+      for (const seedFile of PROJECTS_SEED_FILES) {
+        try {
+          const projects = JSON.parse(await fs.readFile(seedFile, 'utf8'));
+          await writeProjects(projects);
+          return projects;
+        } catch (seedError) {
+          if (seedError?.code !== 'ENOENT') throw seedError;
+        }
+      }
+      return [];
+    }
     throw error;
   }
 };
