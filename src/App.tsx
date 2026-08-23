@@ -35,6 +35,7 @@ import WhatsAppButton from './components/WhatsAppButton';
 import Footer from './components/Footer';
 import ProjectPage, { DEFAULT_PROJECTS } from './components/ProjectPage';
 import { motion, AnimatePresence } from 'motion/react';
+import { attributionMessage, trackMetaEvent } from './lib/metaPixel';
 
 import coverPhoto from './assets/images/cctv cove photo.png';
 import editedBannerDome from './assets/images/edited banner dome.png';
@@ -406,9 +407,14 @@ export default function App() {
 📍 ADDRESS: ${quickContactAddress}
 📅 DATE: ${quickContactDate || 'No preference'}
 ⏰ TIME: ${quickContactTime || 'No preference'}
-📝 DETAILS: ${quickContactMsg || 'Interested in onsite survey.'}`
+📝 DETAILS: ${quickContactMsg || 'Interested in onsite survey.'}${attributionMessage()}`
     );
     const url = `https://wa.me/601133901688?text=${encodedMessage}`;
+    trackMetaEvent('Lead', {
+      content_name: 'Inspection Request Form',
+      content_category: 'Site Survey',
+      contact_method: 'WhatsApp',
+    });
     try {
       if (typeof window !== 'undefined') {
         const win = window.open(url, '_blank');

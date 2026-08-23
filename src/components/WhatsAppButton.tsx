@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { ShieldCheck, X, Facebook, Instagram } from 'lucide-react';
+import { attributionMessage, trackMetaEvent } from '../lib/metaPixel';
 
 export default function WhatsAppButton() {
   const [showTooltip, setShowTooltip] = useState(false);
@@ -13,7 +14,12 @@ export default function WhatsAppButton() {
   }, []);
 
   const handleClick = () => {
-    const rawMessage = "Hello JB CCTV Security! I am browsing your website and would like to consult with a specialist on security systems for my property.";
+    trackMetaEvent('Contact', {
+      content_name: 'Floating WhatsApp Button',
+      content_category: 'Website Enquiry',
+      contact_method: 'WhatsApp',
+    });
+    const rawMessage = `Hello JB CCTV Security! I am browsing your website and would like to consult with a specialist on security systems for my property.${attributionMessage()}`;
     const url = `https://wa.me/601133901688?text=${encodeURIComponent(rawMessage)}`;
     try {
       if (typeof window !== 'undefined') {

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Sliders, Shield, Cctv, Info, HardDrive, Eye, Mic, BellRing, Phone, CheckCircle2, MapPin, Sparkles, HelpCircle } from 'lucide-react';
+import { attributionMessage, trackMetaEvent } from '../lib/metaPixel';
 
 interface PropertyType {
   name: string;
@@ -320,6 +321,7 @@ Please schedule a suitable site-survey timing with me on WhatsApp. Thank you!`;
 Please confirm package availability and schedule a survey for my place in Johor Bahru!`;
     }
 
+    rawMessage += attributionMessage();
     const encodedText = encodeURIComponent(rawMessage);
     return `https://wa.me/601133901688?text=${encodedText}`;
   };
@@ -708,6 +710,14 @@ Please confirm package availability and schedule a survey for my place in Johor 
         <div className="space-y-3 mt-6">
           <a
             href={generateWhatsAppUrl()}
+            data-meta-content-name="Custom CCTV Quote"
+            data-meta-content-category="Quote Console"
+            onClick={() => trackMetaEvent('QuoteRequest', {
+              property_type: activeProperty.name,
+              camera_count: cameraCount,
+              system_type: techType,
+              estimated_value: estimatedTotal,
+            }, true)}
             target="_blank"
             rel="noopener noreferrer"
             className="w-full py-4 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-500 hover:to-amber-600 text-black font-extrabold text-sm tracking-wide shadow-lg shadow-amber-500/10 flex items-center justify-center gap-2 transition-all hover:scale-[1.02] active:scale-95 cursor-pointer"
